@@ -1,11 +1,272 @@
+
+
 <!DOCTYPE html>
 
+<!--
+Copyright 2017 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title></title>
-    </head>
-    <body>
-        
-    </body>
+<head>
+
+<title>Parking sneaker App</title>
+
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=0.6">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+
+  <style type="text/css">
+ @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+      
+.video{
+    max-width: 840px;
+    max-height:480px;
+    margin-left: 20%;
+    margin-right: 18%;
+    
+    text-align: center;
+      }
+      
+.container{
+    width: 100%;
+    max-height: 520px;
+    padding: 15px;
+    background-color: #efefef;
+}
+
+.button {
+    background-color: #b2dbea; /* Green */
+    border: none;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 22px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-left: 20%;
+    position:relative;
+    margin-bottom:1%;
+    width:360px;
+}
+       
+.result {
+    background-color:#ff5c49; 
+    border: none;
+    color: white;
+    padding-top: 17px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 17px;
+    font-size:24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 2px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-left: 20%;
+    margin-top: 5px;
+    height:70px;
+   width:360px;
+}     
+
+
+html{
+    background-color: #fff;
+    font:normal 16px/1.5 sans-serif;
+    color: #333;
+}
+
+h3{
+    font: normal 26px/1.5 'Open Sans', sans-serif;
+    color: #2c3e50;
+    margin: 10px 0;
+    text-align: center;
+}
+
+
+
+.app .controls{
+    display: flex;
+    align-items: flex;
+    justify-content: space-between;
+    margin-top: -80px;
+    padding-left: 180px;
+    padding-right: 180px;
+    z-index: 10;
+}
+
+.app .controls a{
+    border-radius: 50%;
+    color: #fff;
+    background-color: #111;
+    text-decoration: none;
+    padding: 15px;
+    line-height: 0;
+    opacity: 0.7;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 10;
+}
+
+.app .controls a:hover{
+    opacity: 1;
+}
+
+
+
+      
+  </style>
+
+    <script>
+    
+    window.onload=function(){
+    
+// References to all the element we will need.
+var take_photo_btn = document.querySelector('#take-photo'),
+    video = document.querySelector('#camera-stream'),
+    delete_photo_btn = document.querySelector('#delete-photo'),
+    download_photo_btn = document.querySelector('#download-photo'),
+    error_message = document.querySelector('#error-message');
+
+
+// The getUserMedia interface is used for handling camera input.
+// Some browsers need a prefix so here we're covering all the options
+navigator.getMedia = ( navigator.getUserMedia ||
+                      navigator.webkitGetUserMedia ||
+                      navigator.mozGetUserMedia ||
+                      navigator.msGetUserMedia);
+
+if(!navigator.getMedia){
+  displayErrorMessage("Your browser doesn't have support for the navigator.getUserMedia interface.");
+}
+else {
+    
+delete_photo_btn.addEventListener("click", function(e){
+location.reload();
+console.log("reload")
+});
+                                   
+take_photo_btn.addEventListener("click", function(e){
+
+  e.preventDefault();
+
+  var snap = takeSnapshot();
+
+  // Show image. 
+  //image.setAttribute('src', snap);
+  //image.classList.add("visible");
+
+  // Enable delete and save buttons
+  delete_photo_btn.classList.remove("disabled");
+  //download_photo_btn.classList.remove("disabled");
+
+  // Set the href attribute of the download button to the snap url.
+  //download_photo_btn.href = snap;
+
+  // Pause video playback of stream.
+  videoElement.pause();
+
+});
+    
+    function takeSnapshot(){
+    $("#loadingImage").toggle();
+      // Here we're using a trick that involves a hidden canvas element.  
+      var hidden_canvas = document.querySelector('canvas'), context = hidden_canvas.getContext('2d');
+      var width = 480, height = 360;
+
+        if (width && height) {
+        // Setup a canvas with the same dimensions as the video.
+        hidden_canvas.width = width;
+        hidden_canvas.height = height;
+        // Make a copy of the current frame in the video on the canvas.
+        context.drawImage(videoElement, 0, 0, width, height);
+        // Get an image dataURL from the canvas.
+        var imageDataURL = hidden_canvas.toDataURL('image/png');
+    
+                $.ajax({
+                  type: "POST",url: "https://www.datactivist.com/App/ParkingSneaker/photo_upload.php",
+                  data: {imgBase64: imageDataURL }
+                }).done(function(o) {
+              
+                    setTimeout(function(){
+                        processImage()
+                         $("#loadingImage").toggle();
+                        console.log('after');
+                        console.log("function  processImage launched")
+                        //$("#control_icon").toggle();
+                     }, 1500);
+            console.log('saved');
+                    
+                });  
+        }
+    } //end function snapshot  
+
+
+}
+    }
+    
+    </script>
+</head>
+
+<body>
+<h3>Parking Sneaker App powered by AZURE</h3>
+ <div class="select" style="margin-left:8%; display: table-cell; position:absolute; top:55px;">
+     <select id="videoSource" class="form-control" style="width:200px"></select>
+  </div>
+    <br><br>
+<div id="container"  class="container">
+
+ 
+    <video muted autoplay id="camera-stream" class="video"></video>
+    <img id="snap" style="visibility:hidden" >
+ <div class="app">
+      <div class="controls" id="control_icon" style="visibility: visible">
+      <a href="#" id="delete-photo" title="Delete Photo" class="disabled"><i class="material-icons">refresh</i></a>
+      <a href="#" id="take-photo" title="Take Photo"><i class="material-icons">camera_alt</i></a>
+      <a  href="https://www.datactivist.com/App/picture.png" target="_blank"><i class="material-icons">file_download</i></a>  
+    </div>
+      
+       <canvas style="visibility:hidden" ></canvas>
+ </div>
+</div>
+    
+<div style="position: absolute; top:400px; display:none; vertical-align: middle; justify-content: center; margin-left: 5%; background-color:white; width:70%;  border-radius: 8px; z-index: 50" id="loadingImage" >
+<p style="font: normal 20px'Open Sans', sans-serif;  color: #2c3e50;  display: table-cell; ">
+<img src="https://loading.io/spinners/coolors/lg.palette-rotating-ring-loader.gif" style="vertical-align: middle;"  height="100px">Picture is being processed..</p>
+    </div>
+
+      <br><br><br>
+<input type="text" id="UserInput" class="form-control" style="width:360px; margin-left:20%; font-size: 22px;top: -15px; position:relative; height:50px;" value="Suggestion from text recognition">
+    
+<button onclick="update()" class="button">Correct the Input and Update</button><br>
+
+<p id="demo" class="result"></p>
+    
+ <script src="main.js"></script>
+ <script src="processImage.js"></script>
+
+</body>
 </html>
